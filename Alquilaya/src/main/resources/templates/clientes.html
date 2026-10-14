@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Clientes - Sistema de Alquiler</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-car me-2"></i>AlquilaYA</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Sucursales</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/vehiculos">Vehículos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/alquileres">Alquileres</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/mantenimientos">Mantenimiento</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold" href="/clientes">Clientes</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="fw-bold text-dark m-0">Directorio de Clientes</h3>
+                <small class="text-muted">Registro y administración de conductores autorizados</small>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Formulario de Registro -->
+            <div class="col-lg-4">
+                <div class="card border-0">
+                    <div class="card-header bg-white py-3 fw-bold border-bottom">
+                        <i class="fa-solid fa-user-plus text-primary me-1"></i> Registrar Cliente
+                    </div>
+                    <div class="card-body">
+                        <form id="formCliente" onsubmit="guardarCliente(event)">
+                            <div class="row g-2 mb-2">
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Nombre</label>
+                                    <input type="text" id="nombre" class="form-control form-control-sm" placeholder="Juan" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Apellido</label>
+                                    <input type="text" id="apellido" class="form-control form-control-sm" placeholder="Pérez" required>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold">Correo Electrónico</label>
+                                <input type="email" id="email" class="form-control form-control-sm" placeholder="juan@correo.com" required>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Licencia</label>
+                                    <input type="text" id="licencia" class="form-control form-control-sm" placeholder="LIC-987" required>
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Teléfono</label>
+                                    <input type="text" id="telefono" class="form-control form-control-sm" placeholder="33-1234-5678">
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold py-2">
+                                <i class="fa-solid fa-save me-1"></i> Guardar Cliente
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Clientes -->
+            <div class="col-lg-8">
+                <div class="card border-0">
+                    <div class="card-header bg-white py-3 border-bottom d-flex flex-wrap justify-content-between align-items-center gap-2">
+                        <span class="fw-bold"><i class="fa-solid fa-users text-primary me-1"></i> Lista de Clientes</span>
+                        <input type="text" id="inputBuscar" class="form-control form-control-sm" placeholder="Buscar cliente..." onkeyup="filtrarClientes()" style="width: 180px;">
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-3">ID</th>
+                                        <th>Cliente</th>
+                                        <th>Correo</th>
+                                        <th>Licencia</th>
+                                        <th>Teléfono</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaClientes">
+                                    <tr><td colspan="6" class="text-center py-4 text-muted">Cargando directorio...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let clientes = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarClientes();
+        });
+
+        // 1. Cargar clientes
+        function cargarClientes() {
+            fetch('/api/clientes')
+                .then(res => res.json())
+                .then(data => {
+                    clientes = data;
+                    renderizarTabla(data);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Error al cargar clientes');
+                });
+        }
+
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaClientes');
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="text-center py-4 text-muted">No hay clientes registrados.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = lista.map(c => `
+                <tr>
+                    <td class="px-3 fw-bold text-muted">#${c.idCliente}</td>
+                    <td class="fw-bold">${c.nombre} ${c.apellido}</td>
+                    <td><small>${c.email}</small></td>
+                    <td><span class="badge bg-secondary">${c.licenciaConducir}</span></td>
+                    <td><small class="text-muted">${c.telefono || 'Sin teléfono'}</small></td>
+                    <td class="text-center">
+                        <button class="btn btn-sm btn-outline-danger" onclick="eliminarCliente(${c.idCliente})" title="Eliminar">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filtrarClientes() {
+            const q = document.getElementById('inputBuscar').value.toLowerCase().trim();
+            const filtrados = clientes.filter(c =>
+                (c.nombre && c.nombre.toLowerCase().includes(q)) ||
+                (c.apellido && c.apellido.toLowerCase().includes(q)) ||
+                (c.email && c.email.toLowerCase().includes(q)) ||
+                (c.licenciaConducir && c.licenciaConducir.toLowerCase().includes(q))
+            );
+            renderizarTabla(filtrados);
+        }
+
+        // 2. Guardar cliente (JSON puro)
+        function guardarCliente(e) {
+            e.preventDefault();
+
+            const nuevoCliente = {
+                nombre: document.getElementById('nombre').value,
+                apellido: document.getElementById('apellido').value,
+                email: document.getElementById('email').value,
+                licenciaConducir: document.getElementById('licencia').value,
+                telefono: document.getElementById('telefono').value
+            };
+
+            fetch('/api/clientes', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevoCliente)
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Cliente registrado con éxito');
+                    document.getElementById('formCliente').reset();
+                    cargarClientes();
+                } else {
+                    res.json().then(d => alert(d.email || 'Error al guardar cliente'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de red');
+            });
+        }
+
+        // 3. Eliminar cliente
+        function eliminarCliente(id) {
+            if (!confirm('¿Seguro que deseas eliminar a este cliente?')) return;
+
+            fetch('/api/clientes/' + id, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Cliente eliminado');
+                    cargarClientes();
+                } else {
+                    alert('No se pudo eliminar el cliente');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de red');
+            });
+        }
+    </script>
+</body>
+</html>

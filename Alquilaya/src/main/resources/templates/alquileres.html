@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alquileres - Sistema de Alquiler</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de Navegación -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-car me-2"></i>AlquilaYA</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link" href="/">Sucursales</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/vehiculos">Vehículos</a></li>
+                    <li class="nav-item"><a class="nav-link active fw-bold" href="/alquileres">Alquileres</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/mantenimientos">Mantenimiento</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/clientes">Clientes</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="fw-bold text-dark m-0">Control de Alquileres</h3>
+                <small class="text-muted">Registro de contratos y devolución de vehículos</small>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Formulario de Nuevo Alquiler -->
+            <div class="col-lg-4">
+                <div class="card border-0">
+                    <div class="card-header bg-white py-3 fw-bold border-bottom">
+                        <i class="fa-solid fa-file-contract text-primary me-1"></i> Nuevo Alquiler
+                    </div>
+                    <div class="card-body">
+                        <form id="formAlquiler" onsubmit="guardarAlquiler(event)">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Seleccionar Cliente</label>
+                                <select id="clienteSelect" class="form-select form-select-sm" required>
+                                    <option value="">Cargando clientes...</option>
+                                </select>
+                            </div>
+
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Vehículo (Solo Disponibles)</label>
+                                <select id="vehiculoSelect" class="form-select form-select-sm" required onchange="calcularTotal()">
+                                    <option value="">Cargando autos disponibles...</option>
+                                </select>
+                                <small class="text-muted" style="font-size: 0.75rem;">* El auto pasará a estado "Alquilado".</small>
+                            </div>
+
+                            <div class="row g-2 mb-3">
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Fecha Inicio</label>
+                                    <input type="date" id="fechaAlquiler" class="form-control form-control-sm" required onchange="calcularTotal()">
+                                </div>
+                                <div class="col-6">
+                                    <label class="form-label small fw-semibold">Fecha Devolución</label>
+                                    <input type="date" id="fechaDevolucion" class="form-control form-control-sm" required onchange="calcularTotal()">
+                                </div>
+                            </div>
+
+                            <!-- Cálculo del costo -->
+                            <div class="p-2 mb-3 bg-light rounded text-center border">
+                                <small class="text-muted d-block">Total Calculado:</small>
+                                <span class="fw-bold fs-5 text-primary" id="totalEstimado">$0.00</span>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold py-2">
+                                <i class="fa-solid fa-check me-1"></i> Registrar Alquiler
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Alquileres -->
+            <div class="col-lg-8">
+                <div class="card border-0">
+                    <div class="card-header bg-white py-3 border-bottom d-flex justify-content-between align-items-center">
+                        <span class="fw-bold"><i class="fa-solid fa-list text-primary me-1"></i> Historial de Alquileres</span>
+                        <span class="badge bg-secondary" id="totalAlquileres">0 contratos</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-3">ID</th>
+                                        <th>Cliente</th>
+                                        <th>Vehículo</th>
+                                        <th>Fechas</th>
+                                        <th class="text-center">Total</th>
+                                        <th class="text-center">Estado</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaAlquileres">
+                                    <tr><td colspan="7" class="text-center py-4 text-muted">Cargando contratos...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let alquileres = [];
+        let vehiculosDisponibles = [];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            // Inicializar fechas hoy y mañana
+            const hoy = new Date().toISOString().split('T')[0];
+            const manana = new Date(Date.now() + 86400000).toISOString().split('T')[0];
+            document.getElementById('fechaAlquiler').value = hoy;
+            document.getElementById('fechaDevolucion').value = manana;
+
+            cargarClientes();
+            cargarVehiculosDisponibles();
+            cargarAlquileres();
+        });
+
+        // 1. Cargar clientes en el select
+        function cargarClientes() {
+            fetch('/api/clientes')
+                .then(res => res.json())
+                .then(data => {
+                    const sel = document.getElementById('clienteSelect');
+                    sel.innerHTML = '<option value="">Selecciona un cliente</option>' +
+                        data.map(c => `<option value="${c.idCliente}">${c.nombre} ${c.apellido} (${c.licenciaConducir})</option>`).join('');
+                });
+        }
+
+        // 2. Cargar autos disponibles
+        function cargarVehiculosDisponibles() {
+            fetch('/api/vehiculos?estado=Disponible')
+                .then(res => res.json())
+                .then(data => {
+                    vehiculosDisponibles = data;
+                    const sel = document.getElementById('vehiculoSelect');
+                    sel.innerHTML = '<option value="">Selecciona un vehículo disponible</option>' +
+                        data.map(v => `<option value="${v.idVehiculo}" data-tarifa="${v.tarifaDiaria}">${v.marca} ${v.modelo} - $${v.tarifaDiaria}/día (${v.matricula})</option>`).join('');
+                    calcularTotal();
+                });
+        }
+
+        // 3. Cargar alquileres
+        function cargarAlquileres() {
+            fetch('/api/alquileres')
+                .then(res => res.json())
+                .then(data => {
+                    alquileres = data;
+                    document.getElementById('totalAlquileres').textContent = data.length + ' contratos';
+                    renderizarTabla(data);
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Error al cargar alquileres');
+                });
+        }
+
+        function renderizarTabla(lista) {
+            const tbody = document.getElementById('tablaAlquileres');
+            if (lista.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="text-center py-4 text-muted">No hay contratos registrados.</td></tr>';
+                return;
+            }
+
+            tbody.innerHTML = lista.map(a => {
+                const esActivo = a.estado === 'Activo';
+                return `
+                <tr>
+                    <td class="px-3 fw-bold text-muted">#${a.idAlquiler}</td>
+                    <td>
+                        <div class="fw-bold">${a.cliente ? a.cliente.nombre + ' ' + a.cliente.apellido : 'N/A'}</div>
+                        <small class="text-muted">${a.cliente ? a.cliente.licenciaConducir : ''}</small>
+                    </td>
+                    <td>
+                        <div class="fw-bold">${a.vehiculo ? a.vehiculo.marca + ' ' + a.vehiculo.modelo : 'N/A'}</div>
+                        <small class="badge bg-light text-dark border">${a.vehiculo ? a.vehiculo.matricula : ''}</small>
+                    </td>
+                    <td><small>${a.fechaAlquiler} al ${a.fechaDevolucion}</small></td>
+                    <td class="text-center fw-bold text-primary">$${a.precioTotal}</td>
+                    <td class="text-center">
+                        <span class="badge ${esActivo ? 'bg-warning text-dark' : 'bg-success'}">
+                            ${a.estado}
+                        </span>
+                    </td>
+                    <td class="text-center">
+                        ${esActivo ? `
+                            <button class="btn btn-sm btn-success" onclick="devolverVehiculo(${a.idAlquiler})" title="Devolver Vehículo">
+                                <i class="fa-solid fa-rotate-left me-1"></i> Devolver
+                            </button>
+                        ` : `
+                            <button class="btn btn-sm btn-outline-danger" onclick="eliminarAlquiler(${a.idAlquiler})" title="Eliminar contrato">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        `}
+                    </td>
+                </tr>`;
+            }).join('');
+        }
+
+        // 4. Calcular total en vivo
+        function calcularTotal() {
+            const vSel = document.getElementById('vehiculoSelect');
+            const fIni = document.getElementById('fechaAlquiler').value;
+            const fFin = document.getElementById('fechaDevolucion').value;
+
+            if (!vSel.value || !fIni || !fFin) {
+                document.getElementById('totalEstimado').textContent = '$0.00';
+                return;
+            }
+
+            const d1 = new Date(fIni);
+            const d2 = new Date(fFin);
+            const dias = Math.round((d2 - d1) / (1000 * 60 * 60 * 24));
+
+            if (dias > 0) {
+                const tarifa = parseFloat(vSel.selectedOptions[0].dataset.tarifa || 0);
+                const total = dias * tarifa;
+                document.getElementById('totalEstimado').textContent = `$${total.toFixed(2)} (${dias} días)`;
+            } else {
+                document.getElementById('totalEstimado').textContent = '$0.00';
+            }
+        }
+
+        // 5. Guardar alquiler (JSON puro)
+        function guardarAlquiler(e) {
+            e.preventDefault();
+
+            const nuevoAlquiler = {
+                cliente: { idCliente: parseInt(document.getElementById('clienteSelect').value) },
+                vehiculo: { idVehiculo: parseInt(document.getElementById('vehiculoSelect').value) },
+                fechaAlquiler: document.getElementById('fechaAlquiler').value,
+                fechaDevolucion: document.getElementById('fechaDevolucion').value
+            };
+
+            fetch('/api/alquileres', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevoAlquiler)
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Alquiler registrado con éxito. El auto ahora está marcado como Alquilado.');
+                    document.getElementById('formAlquiler').reset();
+                    cargarAlquileres();
+                    cargarVehiculosDisponibles();
+                } else {
+                    res.json().then(d => alert(d.error || 'Error al procesar alquiler'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de red');
+            });
+        }
+
+        // 6. Devolver vehículo
+        function devolverVehiculo(id) {
+            if (!confirm('¿Deseas devolver este vehículo? Se marcará como Disponible y el contrato como Completado.')) return;
+
+            fetch(`/api/alquileres/${id}/devolver`, {
+                method: 'POST'
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Vehículo devuelto con éxito. Ahora está Disponible.');
+                    cargarAlquileres();
+                    cargarVehiculosDisponibles();
+                } else {
+                    res.json().then(d => alert(d.error || 'Error al devolver'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de red');
+            });
+        }
+
+        // 7. Eliminar alquiler completado
+        function eliminarAlquiler(id) {
+            if (!confirm('¿Deseas eliminar este contrato completado?')) return;
+
+            fetch(`/api/alquileres/${id}`, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Contrato eliminado');
+                    cargarAlquileres();
+                } else {
+                    res.json().then(d => alert(d.error || 'Solo se pueden eliminar contratos completados'));
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de red');
+            });
+        }
+    </script>
+</body>
+</html>

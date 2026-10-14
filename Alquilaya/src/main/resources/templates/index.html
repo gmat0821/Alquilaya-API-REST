@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sucursales - Sistema de Alquiler</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome para iconos básicos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        body {
+            background-color: #f4f6f9;
+        }
+        .card {
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Barra de Navegación Simple -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-primary mb-4 shadow-sm">
+        <div class="container">
+            <a class="navbar-brand fw-bold" href="/"><i class="fa-solid fa-car me-2"></i>AlquilaYA</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#menuNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="menuNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item"><a class="nav-link active fw-bold" href="/">Sucursales</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/vehiculos">Vehículos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/alquileres">Alquileres</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/mantenimientos">Mantenimiento</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/clientes">Clientes</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mb-5">
+        
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <h3 class="fw-bold text-dark m-0">Gestión de Sucursales</h3>
+                <small class="text-muted">Administración de oficinas y sedes de alquiler</small>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <!-- Formulario de Registro Simple -->
+            <div class="col-lg-4">
+                <div class="card border-0">
+                    <div class="card-header bg-white py-3 fw-bold border-bottom">
+                        <i class="fa-solid fa-plus-circle text-primary me-1"></i> Nueva Sucursal
+                    </div>
+                    <div class="card-body">
+                        <form id="formOficina" onsubmit="guardarSucursal(event)">
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Nombre de Sucursal</label>
+                                <input type="text" id="nombre" class="form-control form-control-sm" placeholder="Ej. Sucursal Centro" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Dirección</label>
+                                <input type="text" id="direccion" class="form-control form-control-sm" placeholder="Av. Principal #123" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Ciudad</label>
+                                <input type="text" id="ciudad" class="form-control form-control-sm" placeholder="Ej. Guadalajara" required>
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold">Región / Estado</label>
+                                <input type="text" id="region" class="form-control form-control-sm" placeholder="Ej. Jalisco" required>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-sm w-100 fw-bold py-2">
+                                <i class="fa-solid fa-save me-1"></i> Guardar Sucursal
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Sucursales -->
+            <div class="col-lg-8">
+                <div class="card border-0">
+                    <div class="card-header bg-white py-3 fw-bold border-bottom d-flex justify-content-between align-items-center">
+                        <span><i class="fa-solid fa-building text-primary me-1"></i> Listado de Sucursales</span>
+                        <span class="badge bg-secondary" id="totalSucursales">0 sedes</span>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-striped mb-0 align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-3">ID</th>
+                                        <th>Nombre</th>
+                                        <th>Dirección</th>
+                                        <th>Ciudad</th>
+                                        <th class="text-center">Acciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaSucursales">
+                                    <tr><td colspan="5" class="text-center py-4 text-muted">Cargando sucursales...</td></tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Detalle de la sucursal seleccionada -->
+                <div class="card border-0 mt-4 d-none" id="cardDetalle">
+                    <div class="card-header bg-white py-3 fw-bold border-bottom d-flex justify-content-between align-items-center">
+                        <span id="tituloDetalle"><i class="fa-solid fa-car text-success me-1"></i> Vehículos en la Sucursal</span>
+                        <button class="btn btn-sm btn-outline-secondary" onclick="cerrarDetalle()">Cerrar</button>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="table-responsive">
+                            <table class="table table-sm table-hover mb-0">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th class="px-3">Placa</th>
+                                        <th>Vehículo</th>
+                                        <th>Tarifa</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="tablaVehiculosSede"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        let sucursales = [];
+
+        // Al cargar la página
+        document.addEventListener('DOMContentLoaded', () => {
+            cargarSucursales();
+        });
+
+        // 1. Obtener sucursales
+        function cargarSucursales() {
+            fetch('/api/oficinas')
+                .then(res => res.json())
+                .then(data => {
+                    sucursales = data;
+                    document.getElementById('totalSucursales').textContent = data.length + ' sedes';
+                    const tbody = document.getElementById('tablaSucursales');
+
+                    if (data.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-muted">No hay sucursales registradas todavía.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = data.map(s => `
+                        <tr>
+                            <td class="px-3 fw-bold text-muted">#${s.idOficina}</td>
+                            <td class="fw-bold">${s.nombre}</td>
+                            <td>${s.direccion}</td>
+                            <td><span class="badge bg-light text-dark border">${s.ciudad}, ${s.region}</span></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-primary me-1" onclick="verDetalle(${s.idOficina}, '${s.nombre}')" title="Ver autos">
+                                    <i class="fa-solid fa-eye"></i> Ver
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger" onclick="eliminarSucursal(${s.idOficina})" title="Eliminar">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </td>
+                        </tr>
+                    `).join('');
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('Error al conectar con la API de oficinas');
+                });
+        }
+
+        // 2. Guardar sucursal (JSON puro)
+        function guardarSucursal(e) {
+            e.preventDefault();
+
+            const nuevaSucursal = {
+                nombre: document.getElementById('nombre').value,
+                direccion: document.getElementById('direccion').value,
+                ciudad: document.getElementById('ciudad').value,
+                region: document.getElementById('region').value
+            };
+
+            fetch('/api/oficinas', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(nuevaSucursal)
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Sucursal registrada con éxito');
+                    document.getElementById('formOficina').reset();
+                    cargarSucursales();
+                } else {
+                    alert('Error al guardar la sucursal');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error de conexión');
+            });
+        }
+
+        // 3. Eliminar sucursal
+        function eliminarSucursal(id) {
+            if (!confirm('¿Seguro que deseas eliminar esta sucursal?')) return;
+
+            fetch('/api/oficinas/' + id, {
+                method: 'DELETE'
+            })
+            .then(res => {
+                if (res.ok) {
+                    alert('Sucursal eliminada');
+                    cargarSucursales();
+                    cerrarDetalle();
+                } else {
+                    alert('No se pudo eliminar la sucursal');
+                }
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Error al eliminar');
+            });
+        }
+
+        // 4. Ver detalle de vehículos de la sucursal
+        function verDetalle(idOficina, nombre) {
+            document.getElementById('cardDetalle').classList.remove('d-none');
+            document.getElementById('tituloDetalle').innerHTML = '<i class="fa-solid fa-car text-success me-1"></i> Autos en ' + nombre;
+
+            fetch('/api/vehiculos')
+                .then(res => res.json())
+                .then(vehiculos => {
+                    const deSede = vehiculos.filter(v => v.oficina && v.oficina.idOficina === idOficina);
+                    const tbody = document.getElementById('tablaVehiculosSede');
+
+                    if (deSede.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="4" class="text-center py-3 text-muted">No hay vehículos asignados a esta sucursal.</td></tr>';
+                        return;
+                    }
+
+                    tbody.innerHTML = deSede.map(v => `
+                        <tr>
+                            <td class="px-3 fw-bold">${v.matricula}</td>
+                            <td>${v.marca} ${v.modelo} (${v.anio})</td>
+                            <td>$${v.tarifaDiaria}</td>
+                            <td>
+                                <span class="badge ${v.estado === 'Disponible' ? 'bg-success' : (v.estado === 'Alquilado' ? 'bg-warning text-dark' : 'bg-danger')}">
+                                    ${v.estado}
+                                </span>
+                            </td>
+                        </tr>
+                    `).join('');
+                });
+        }
+
+        function cerrarDetalle() {
+            document.getElementById('cardDetalle').classList.add('d-none');
+        }
+    </script>
+</body>
+</html>
