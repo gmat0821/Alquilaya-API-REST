@@ -211,6 +211,3 @@ spring.jpa.show-sql=true
 
 ```
 
-```
-
-```
